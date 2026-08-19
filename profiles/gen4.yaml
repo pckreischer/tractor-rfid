@@ -1,0 +1,60 @@
+# John Deere Gen 4 CommandCenter / 4640 Universal Display
+#
+# STATUS: structure is real, coordinates are PLACEHOLDERS.
+# Capture the real values with `jdmacro record` against the John Deere Display
+# Simulator, then replace every value marked TODO. Do not run this against a
+# real display until the coordinates have been verified in the simulator.
+
+display: gen4
+resolution: [1024, 768]   # TODO verify against the physical display
+settle_ms: 500
+
+home:
+  # Reaching a known state is the whole reliability story for an open-loop
+  # macro. Backing out repeatedly is safer than pressing a single home key,
+  # because it also dismisses any modal dialog left open by a prior run.
+  reset:
+    - {action: key, name: ESC, repeat: 4}
+    - {action: wait, ms: 800}
+    - {action: tap, x: 40, y: 40}      # TODO home/menu button
+    - {action: wait, ms: 1200}
+
+screens:
+  work_setup:
+    path_from_home:
+      - {action: tap, x: 512, y: 700}  # TODO menu drawer
+      - {action: wait, ms: 800}
+      - {action: tap, x: 200, y: 300}  # TODO "Work Setup"
+      - {action: wait, ms: 1200}
+
+  products:
+    path_from_home: []   # TODO capture route to the product/variety list
+
+macros:
+  set_seed_variety:
+    params: [crop, variety]
+    steps:
+      - {action: note, value: "set seeding variety {crop} / {variety}"}
+      - {action: goto, screen: work_setup}
+      - {action: tap, x: 300, y: 250}      # TODO "Variety" field
+      - {action: wait, ms: 800}
+      - {action: key, name: a, mods: [ctrl]}   # select existing contents
+      - {action: text, value: "{variety}"}
+      - {action: key, name: ENTER}
+      - {action: wait, ms: 800}
+
+  set_chemical:
+    params: [product, rate]
+    steps:
+      - {action: note, value: "set chemical {product} at {rate}"}
+      - {action: goto, screen: work_setup}
+      - {action: tap, x: 300, y: 350}      # TODO "Product" field
+      - {action: wait, ms: 800}
+      - {action: key, name: a, mods: [ctrl]}
+      - {action: text, value: "{product}"}
+      - {action: key, name: ENTER}
+      - {action: wait, ms: 600}
+      - {action: tap, x: 300, y: 420}      # TODO "Target Rate" field
+      - {action: key, name: a, mods: [ctrl]}
+      - {action: text, value: "{rate}"}
+      - {action: key, name: ENTER}
